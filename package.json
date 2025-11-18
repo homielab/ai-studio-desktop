@@ -1,0 +1,57 @@
+{
+  "name": "ai-studio-desktop",
+  "productName": "Google AI Studio (Unofficial)",
+  "version": "1.0.0",
+  "description": "Unofficial desktop client for Google AI Studio",
+  "main": "main.js",
+  "build": {
+    "appId": "com.homielab.aistudio",
+    "productName": "Google AI Studio (Unofficial)",
+    "publish": {
+      "provider": "github",
+      "owner": "homielab",
+      "repo": "ai-studio-desktop"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png",
+      "category": "Development"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "postinstall": "electron-builder install-app-deps",
+    "release": "env-cmd -f .env electron-builder --publish always"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^39.2.2",
+    "electron-builder": "^26.0.12",
+    "env-cmd": "^11.0.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  }
+}

@@ -1,0 +1,97 @@
+# Google AI Studio - Unofficial Desktop Client
+
+A lightweight desktop client for [Google AI Studio](https://aistudio.google.com/).
+
+This project allows you to use Google's Gemini models in a dedicated window with global hotkeys, system tray support, and "always on top" functionality, separating your AI workflow from your browser clutter.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
+![App Screenshot](./screenshot.png)
+
+## 📥 Download
+
+**[Download the latest version for Windows, Mac, and Linux here.](https://github.com/homielab/ai-studio-desktop/releases/latest)**
+
+---
+
+## 🚀 Features
+
+- **Dedicated Workspace:** Runs as a standalone app, not a browser tab.
+- **Global Hotkey (Toggle):** Press `Cmd+Shift+A` (Mac) or `Ctrl+Shift+A` (Win) to instantly show/hide the window from anywhere.
+- **Quick New Chat:** Press `Cmd+Shift+N` (Mac) or `Ctrl+Shift+N` (Win) to jump straight to a new prompt and focus the input box.
+- **System Tray Support:** Minimizing or closing the window sends it to the system tray, keeping your session alive in the background.
+- **Always on Top:** Toggle pin-mode via the View menu or `Cmd/Ctrl+T` to keep the AI floating over your code editor.
+- **Google Auth Fix:** Includes User-Agent spoofing to bypass "This browser is not secure" errors.
+
+## ⚠️ Important: Installation & Security Warnings
+
+**Please Read:** This application is open-source and free. It is **not code-signed** with a paid certificate (which costs ~$100/year from Apple/Microsoft). Because of this, your operating system will flag it as "Unknown" or "Unsafe."
+
+This is a false alarm common with open-source software. Here is how to install it:
+
+**Windows Users:**
+
+1. When you run the installer, you may see a blue "Windows protected your PC" window.
+2. Click **"More Info"**.
+3. Click the **"Run Anyway"** button.
+
+**macOS Users:**
+
+1. If you see _"The app is damaged"_ or _"Unidentified Developer"_:
+2. **Right-click** the app icon in your Applications folder.
+3. Select **Open** from the menu.
+4. Click **Open** in the pop-up dialog.
+   _(If that doesn't work, open Terminal and run: `xattr -cr /Applications/"Google AI Studio (Unofficial).app"`)_
+
+## ⌨️ Shortcuts
+
+| Feature                  | macOS             | Windows / Linux    |
+| :----------------------- | :---------------- | :----------------- |
+| **Toggle Window**        | `Cmd + Shift + A` | `Ctrl + Shift + A` |
+| **New Chat**             | `Cmd + Shift + N` | `Ctrl + Shift + N` |
+| **Quit App**             | `Cmd + Q`         | `Ctrl + Q`         |
+| **Toggle Always on Top** | `Cmd + T`         | `Ctrl + T`         |
+| **Copy**                 | `Cmd + C`         | `Ctrl + C`         |
+| **Paste**                | `Cmd + V`         | `Ctrl + V`         |
+
+## 📦 Build from Source
+
+If you prefer to build it yourself rather than downloading the installer:
+
+1.  Ensure you have [Node.js](https://nodejs.org/) installed.
+2.  Clone this repository:
+    ```bash
+    git clone https://github.com/homielab/ai-studio-desktop.git
+    cd ai-studio-desktop
+    ```
+3.  Install dependencies:
+    ```bash
+    npm install
+    ```
+4.  Run the app:
+    ```bash
+    npm start
+    ```
+5.  Build executable (Output goes to `dist/` folder):
+    ```bash
+    npm run build
+    ```
+
+## 🛠 Technical & Troubleshooting
+
+**"This browser or app may not be secure"**
+This app uses specific User-Agent stripping to make Google believe it is a standard Chrome browser. If you encounter login issues:
+
+1.  Update the `CHROME_USER_AGENT` string in `main.js` to a newer Chrome version.
+2.  Clear the application cache (delete `%APPDATA%/google-ai-studio-unofficial` on Windows or `~/Library/Application Support/google-ai-studio-unofficial` on Mac).
+
+**Tray Icon**
+Ensure you have a file named `icon.png` in the root directory for the tray icon to render correctly.
+
+## ⚠️ Disclaimer
+
+This is an **unofficial** project and is not affiliated with, endorsed by, or connected to Google. "Google AI Studio" and "Gemini" are trademarks of Google LLC. Use this application at your own discretion.
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).

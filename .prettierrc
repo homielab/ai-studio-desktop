@@ -1,0 +1,11 @@
+{
+  "tailwindFunctions": ["cn", "clsx", "twMerge"],
+  "tabWidth": 2,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "bracketSameLine": true,
+  "trailingComma": "none",
+  "printWidth": 80,
+  "semi": false,
+  "endOfLine": "auto"
+}
