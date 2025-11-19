@@ -28,9 +28,11 @@ try {
   console.error('Failed to load mode', e)
 }
 
+const FIREFOX_USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:145.0) Gecko/20100101 Firefox/145.0'
+
 const getChromeUserAgent = () => {
   const version = '142.0.0.0'
-
   if (process.platform === 'darwin') {
     // macOS
     return `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version} Safari/537.36`
@@ -87,7 +89,8 @@ function createShortcutsWindow() {
     maximizable: false,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      userAgent: CHROME_USER_AGENT
     }
   })
 
@@ -165,11 +168,10 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false
+      sandbox: true,
+      userAgent: CHROME_USER_AGENT
     }
   })
-
-  mainWindow.dis
 
   const template = [
     {
@@ -255,6 +257,42 @@ function createWindow() {
             })
           }
         },
+        { type: 'separator' },
+        {
+          label: 'Reset App Data',
+          click: async () => {
+            const { response } = await dialog.showMessageBox(mainWindow, {
+              type: 'warning',
+              buttons: ['Cancel', 'Reset & Restart'],
+              defaultId: 1,
+              title: 'Reset App Data?',
+              message: 'Are you sure you want to reset all app data?',
+              detail:
+                'This will sign you out, clear cache, and reset your settings to default (First Run).',
+              cancelId: 0
+            })
+
+            if (response === 1) {
+              await session.defaultSession.clearCache()
+              await session.defaultSession.clearStorageData()
+
+              try {
+                const firstRunPath = path.join(
+                  app.getPath('userData'),
+                  '.first-run-complete'
+                )
+                const modeFile = path.join(app.getPath('userData'), '.mode')
+                if (fs.existsSync(firstRunPath)) fs.unlinkSync(firstRunPath)
+                if (fs.existsSync(modeFile)) fs.unlinkSync(modeFile)
+              } catch (e) {
+                console.error(e)
+              }
+
+              app.relaunch()
+              app.exit(0)
+            }
+          }
+        },
         {
           label: 'Report Issue',
           click: async () => {
@@ -283,17 +321,19 @@ function createWindow() {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 
-  const filter = { urls: ['*://*.google.com/*', '*://accounts.google.com/*'] }
+  const filter = { urls: ['*://accounts.google.com/*'] }
   session.defaultSession.webRequest.onBeforeSendHeaders(
     filter,
     (details, callback) => {
-      details.requestHeaders['User-Agent'] = CHROME_USER_AGENT
-      if (details.requestHeaders['Sec-CH-UA'])
-        delete details.requestHeaders['Sec-CH-UA']
-      if (details.requestHeaders['Sec-CH-UA-Mobile'])
-        delete details.requestHeaders['Sec-CH-UA-Mobile']
-      if (details.requestHeaders['Sec-CH-UA-Platform'])
-        delete details.requestHeaders['Sec-CH-UA-Platform']
+      details.requestHeaders['User-Agent'] = FIREFOX_USER_AGENT
+      if (details.requestHeaders['sec-ch-ua'])
+        delete details.requestHeaders['sec-ch-ua']
+      if (details.requestHeaders['sec-ch-ua-mobile'])
+        delete details.requestHeaders['sec-ch-ua-mobile']
+      if (details.requestHeaders['sec-ch-ua-platform'])
+        delete details.requestHeaders['sec-ch-ua-platform']
+      if (details.requestHeaders['X-User-Agent'])
+        delete details.requestHeaders['X-User-Agent']
       callback({ requestHeaders: details.requestHeaders })
     }
   )
