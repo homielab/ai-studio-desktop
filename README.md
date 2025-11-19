@@ -1,8 +1,8 @@
-# Google AI Studio - Unofficial Desktop Client
+# Google AI Studio & Gemini - Unofficial Desktop Client
 
-A lightweight desktop client for [Google AI Studio](https://aistudio.google.com/).
+A powerful, lightweight desktop wrapper for **Google AI Studio** and **Google Gemini**.
 
-This project allows you to use Google's Gemini models in a dedicated window with global hotkeys, system tray support, and "always on top" functionality, separating your AI workflow from your browser clutter.
+This project allows you to access Google's most powerful AI models in a dedicated window, separate from your browser clutter. It features a **Dual Mode** system, allowing you to switch between the developer-focused _AI Studio_ and the chat-focused _Gemini_ interface instantly.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
@@ -16,12 +16,13 @@ This project allows you to use Google's Gemini models in a dedicated window with
 
 ## 🚀 Features
 
-- **Dedicated Workspace:** Runs as a standalone app, not a browser tab.
+- **Dual Mode Support:** Switch between **AI Studio** (for prompting/devs) and **Gemini** (for general chat) via the View menu.
+- **Dedicated Workspace:** Runs as a standalone app with its own icon, keeping your AI workflow separate from Chrome tabs.
 - **Global Hotkey (Toggle):** Press `Cmd+Shift+A` (Mac) or `Ctrl+Shift+A` (Win) to instantly show/hide the window from anywhere.
-- **Quick New Chat:** Press `Cmd+Shift+N` (Mac) or `Ctrl+Shift+N` (Win) to jump straight to a new prompt and focus the input box.
+- **Quick New Chat:** Press `Cmd+Shift+N` (Mac) or `Ctrl+Shift+N` (Win) to jump straight to a new conversation in your current mode.
 - **System Tray Support:** Minimizing or closing the window sends it to the system tray, keeping your session alive in the background.
-- **Always on Top:** Toggle pin-mode via the View menu or `Cmd/Ctrl+T` to keep the AI floating over your code editor.
-- **Google Auth Fix:** Includes User-Agent spoofing to bypass "This browser is not secure" errors.
+- **Auto-Updates:** The app automatically checks for new versions on startup.
+- **Always on Top:** Toggle pin-mode via `Cmd/Ctrl+T` to keep the AI floating over your code editor.
 
 ## ⚠️ Important: Installation & Security Warnings
 
@@ -49,10 +50,10 @@ This is a false alarm common with open-source software. Here is how to install i
 | :----------------------- | :---------------- | :----------------- |
 | **Toggle Window**        | `Cmd + Shift + A` | `Ctrl + Shift + A` |
 | **New Chat**             | `Cmd + Shift + N` | `Ctrl + Shift + N` |
-| **Quit App**             | `Cmd + Q`         | `Ctrl + Q`         |
 | **Toggle Always on Top** | `Cmd + T`         | `Ctrl + T`         |
-| **Copy**                 | `Cmd + C`         | `Ctrl + C`         |
-| **Paste**                | `Cmd + V`         | `Ctrl + V`         |
+| **Quit App**             | `Cmd + Q`         | `Ctrl + Q`         |
+| **Zoom In/Out**          | `Cmd + +/-`       | `Ctrl + +/-`       |
+| **Switch Mode**          | Menu -> View      | Menu -> View       |
 
 ## 📦 Build from Source
 
@@ -79,14 +80,17 @@ If you prefer to build it yourself rather than downloading the installer:
 
 ## 🛠 Technical & Troubleshooting
 
-**"This browser or app may not be secure"**
-This app uses specific User-Agent stripping to make Google believe it is a standard Chrome browser. If you encounter login issues:
+**"An internal error has occurred" / Login Issues**
+Google is very strict about browser fingerprints. This app uses a dynamic User-Agent strategy to match your specific OS (Windows/Mac/Linux).
+If you encounter login issues:
 
-1.  Update the `CHROME_USER_AGENT` string in `main.js` to a newer Chrome version.
-2.  Clear the application cache (delete `%APPDATA%/google-ai-studio-unofficial` on Windows or `~/Library/Application Support/google-ai-studio-unofficial` on Mac).
+1.  **Clear Cache:** Delete the application data folder:
+    - **Windows:** `%APPDATA%/Google AI Studio (Unofficial)`
+    - **Mac:** `~/Library/Application Support/Google AI Studio (Unofficial)`
+2.  Restart the app.
 
-**Tray Icon**
-Ensure you have a file named `icon.png` in the root directory for the tray icon to render correctly.
+**First Run**
+On the first launch, you will be asked to choose your preferred interface (AI Studio or Gemini). You can change this later in the **View** menu.
 
 ## ⚠️ Disclaimer
 

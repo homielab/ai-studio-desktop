@@ -13,6 +13,21 @@ const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const fs = require('fs')
 
+const REPO_URL = 'https://github.com/homielab/ai-studio-desktop/issues'
+const URL_AISTUDIO = 'https://aistudio.google.com/'
+const URL_GEMINI = 'https://gemini.google.com/'
+
+const modePath = path.join(app.getPath('userData'), '.mode')
+let currentMode = 'aistudio' // Default fallback
+
+try {
+  if (fs.existsSync(modePath)) {
+    currentMode = fs.readFileSync(modePath, 'utf8').trim()
+  }
+} catch (e) {
+  console.error('Failed to load mode', e)
+}
+
 const getChromeUserAgent = () => {
   const version = '142.0.0.0'
 
@@ -29,12 +44,30 @@ const getChromeUserAgent = () => {
 }
 
 const CHROME_USER_AGENT = getChromeUserAgent()
-const REPO_URL = 'https://github.com/homielab/ai-studio-desktop/issues'
 
 let mainWindow
 let tray
 let shortcutsWindow = null
 let isQuitting = false
+
+function switchMode() {
+  if (currentMode === 'aistudio') {
+    currentMode = 'gemini'
+  } else {
+    currentMode = 'aistudio'
+  }
+
+  fs.writeFileSync(modePath, currentMode)
+
+  const targetUrl = currentMode === 'aistudio' ? URL_AISTUDIO : URL_GEMINI
+  mainWindow.loadURL(targetUrl)
+
+  mainWindow.setTitle(
+    currentMode === 'aistudio'
+      ? 'Google AI Studio (Unofficial)'
+      : 'Google Gemini (Unofficial)'
+  )
+}
 
 function createShortcutsWindow() {
   if (shortcutsWindow) {
@@ -124,7 +157,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    title: 'Google AI Studio (Unofficial)',
+    title:
+      currentMode === 'aistudio'
+        ? 'Google AI Studio (Unofficial)'
+        : 'Google Gemini (Unofficial)',
     autoHideMenuBar: false,
     webPreferences: {
       nodeIntegration: false,
@@ -143,7 +179,10 @@ function createWindow() {
           label: 'New Chat',
           accelerator: 'CommandOrControl+Shift+N',
           click: () => {
-            const newChatUrl = 'https://aistudio.google.com/prompts/new_chat'
+            const newChatUrl =
+              currentMode === 'aistudio'
+                ? 'https://aistudio.google.com/prompts/new_chat'
+                : 'https://gemini.google.com/app'
             mainWindow.loadURL(newChatUrl)
           }
         },
@@ -161,6 +200,11 @@ function createWindow() {
     {
       label: 'View',
       submenu: [
+        {
+          label: 'Switch Mode (AI Studio / Gemini)',
+          click: switchMode
+        },
+        { type: 'separator' },
         { role: 'reload' },
         { role: 'toggledevtools' },
         { type: 'separator' },
@@ -225,7 +269,9 @@ function createWindow() {
               type: 'info',
               title: 'About',
               message: 'Google AI Studio (Unofficial)',
-              detail: `Version: ${app.getVersion()}\n\nA lightweight desktop client for Google AI Studio.\n\nDeveloped by Homielab.\nNot affiliated with Google.`,
+              detail: `Version: ${app.getVersion()}\n\nMode: ${
+                currentMode === 'aistudio' ? 'AI Studio' : 'Gemini'
+              }\n\nDeveloped by Homielab.\nNot affiliated with Google.`,
               buttons: ['OK'],
               icon: path.join(__dirname, 'icon.png')
             })
@@ -253,12 +299,13 @@ function createWindow() {
   )
 
   mainWindow.webContents.setUserAgent(CHROME_USER_AGENT)
-  mainWindow.loadURL('https://aistudio.google.com/')
+  mainWindow.loadURL(currentMode === 'aistudio' ? URL_AISTUDIO : URL_GEMINI)
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (
       url.includes('accounts.google.com') ||
-      url.includes('aistudio.google.com')
+      url.includes('aistudio.google.com') ||
+      url.includes('gemini.google.com')
     ) {
       return {
         action: 'allow',
@@ -359,7 +406,11 @@ app.on('ready', () => {
     if (!mainWindow.isVisible()) mainWindow.show()
     mainWindow.focus()
 
-    const newChatUrl = 'https://aistudio.google.com/prompts/new_chat'
+    const newChatUrl =
+      currentMode === 'aistudio'
+        ? 'https://aistudio.google.com/prompts/new_chat'
+        : 'https://gemini.google.com/app'
+
     if (mainWindow.webContents.getURL() !== newChatUrl) {
       mainWindow.loadURL(newChatUrl)
     }
@@ -367,12 +418,12 @@ app.on('ready', () => {
     mainWindow.webContents.once('did-finish-load', () => {
       mainWindow.webContents.executeJavaScript(`
         setTimeout(() => {
-            const input = document.querySelector('textarea, [contenteditable="true"]');
+            const input = document.querySelector('textarea, [contenteditable="true"], .ql-editor');
             if (input) {
                 input.focus();
                 input.click(); 
             }
-        }, 500); 
+        }, 800); 
       `)
     })
   })
@@ -381,13 +432,41 @@ app.on('ready', () => {
 
   if (!fs.existsSync(flagPath)) {
     try {
+      // 1. Ask the user for their preferred mode
+      const choice = dialog.showMessageBoxSync(mainWindow, {
+        type: 'question',
+        buttons: ['Google AI Studio', 'Google Gemini'],
+        defaultId: 0,
+        title: 'Choose Your Interface',
+        message: 'Welcome! Which interface do you want to use?',
+        detail: 'You can switch between them later in the View menu.',
+        icon: path.join(__dirname, 'icon.png')
+      })
+
+      // 2. Update mode based on choice (0 = AI Studio, 1 = Gemini)
+      currentMode = choice === 1 ? 'gemini' : 'aistudio'
+
+      // 3. Save preference
+      fs.writeFileSync(modePath, currentMode)
+
+      // 4. Reload window with the chosen URL
+      const targetUrl = currentMode === 'aistudio' ? URL_AISTUDIO : URL_GEMINI
+      mainWindow.loadURL(targetUrl)
+      mainWindow.setTitle(
+        currentMode === 'aistudio'
+          ? 'Google AI Studio (Unofficial)'
+          : 'Google Gemini (Unofficial)'
+      )
+
+      // 5. Mark first run as complete
       fs.writeFileSync(flagPath, 'true')
 
+      // 6. Show shortcuts guide
       setTimeout(() => {
         createShortcutsWindow()
       }, 1000)
     } catch (e) {
-      console.error('Could not write first-run flag:', e)
+      console.error('First run error:', e)
     }
   }
 })
