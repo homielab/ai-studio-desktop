@@ -14,11 +14,14 @@ const path = require('path')
 const fs = require('fs')
 
 const REPO_URL = 'https://github.com/homielab/ai-studio-desktop/issues'
-const URL_AISTUDIO = 'https://aistudio.google.com/'
-const URL_GEMINI = 'https://gemini.google.com/'
+const URL_AISTUDIO = 'https://aistudio.google.com'
+const URL_AISTUDIO_NEW_CHAT = `${URL_AISTUDIO}/prompts/new_chat`
+const URL_GEMINI = 'https://gemini.google.com'
+const URL_GEMINI_NEW_CHAT = `${URL_GEMINI}/app`
+const isMac = process.platform === 'darwin'
 
 const modePath = path.join(app.getPath('userData'), '.mode')
-let currentMode = 'aistudio' // Default fallback
+let currentMode = 'aistudio'
 
 try {
   if (fs.existsSync(modePath)) {
@@ -75,6 +78,19 @@ function switchMode() {
   )
 }
 
+function showAbout() {
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: 'About',
+    message: 'Google AI Studio (Unofficial)',
+    detail: `Version: ${app.getVersion()}\n\nMode: ${
+      currentMode === 'aistudio' ? 'AI Studio' : 'Gemini'
+    }\n\nDeveloped by Homielab.com\nNot affiliated with Google.`,
+    buttons: ['OK'],
+    icon: path.join(__dirname, 'icon.png')
+  })
+}
+
 function createShortcutsWindow() {
   if (shortcutsWindow) {
     shortcutsWindow.focus()
@@ -91,11 +107,7 @@ function createShortcutsWindow() {
     resizable: false,
     minimizable: false,
     maximizable: false,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      userAgent: CHROME_USER_AGENT
-    }
+    webPreferences: { nodeIntegration: false, contextIsolation: true }
   })
 
   shortcutsWindow.webContents.on('before-input-event', (event, input) => {
@@ -122,16 +134,7 @@ function createShortcutsWindow() {
         th, td { text-align: left; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
         th { color: #888; font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
         tr:last-child td { border-bottom: none; }
-        .key { 
-            background-color: #fff; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            padding: 2px 6px; 
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; 
-            font-weight: bold; 
-            font-size: 0.85em;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.1);
-        }
+        .key { background-color: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 2px 6px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-weight: bold; font-size: 0.85em; box-shadow: 0 2px 0 rgba(0,0,0,0.1); }
         .footer { text-align: center; margin-top: 25px; font-size: 0.8em; color: #999; }
       </style>
     </head>
@@ -141,20 +144,16 @@ function createShortcutsWindow() {
         <tr><th>Action</th><th>Shortcut</th></tr>
         <tr><td>Toggle Window</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">Shift</span> + <span class="key">A</span></td></tr>
         <tr><td>New Chat</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">Shift</span> + <span class="key">N</span></td></tr>
-        <tr><td>Toggle "Always on Top"</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">T</span></td></tr>
+        <tr><td>Switch Mode</td><td>(Menu) View -> Switch Mode</td></tr>
+        <tr><td>Always on Top</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">T</span></td></tr>
         <tr><td>Quit App</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">Q</span></td></tr>
-        <tr><td>Zoom In/Out</td><td><span class="key">Cmd/Ctrl</span> + <span class="key">+/-</span></td></tr>
       </table>
-      <div class="footer">
-        (Press ESC to close)
-      </div>
+      <div class="footer">(Press ESC to close)</div>
     </body>
     </html>
   `
-
   const base64Html = Buffer.from(htmlContent).toString('base64')
   shortcutsWindow.loadURL(`data:text/html;base64,${base64Html}`)
-
   shortcutsWindow.on('closed', () => {
     shortcutsWindow = null
   })
@@ -178,6 +177,35 @@ function createWindow() {
   })
 
   const template = [
+    ...(isMac
+      ? [
+          {
+            label: app.name,
+            submenu: [
+              {
+                label: 'About Google AI Studio (Unofficial)',
+                click: showAbout
+              },
+              { type: 'separator' },
+              { role: 'services' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              {
+                label: 'Quit',
+                accelerator: 'Command+Q',
+                click: () => {
+                  isQuitting = true
+                  app.quit()
+                }
+              }
+            ]
+          }
+        ]
+      : []),
+
     {
       label: 'File',
       submenu: [
@@ -187,29 +215,32 @@ function createWindow() {
           click: () => {
             const newChatUrl =
               currentMode === 'aistudio'
-                ? 'https://aistudio.google.com/prompts/new_chat'
-                : 'https://gemini.google.com/app'
+                ? URL_AISTUDIO_NEW_CHAT
+                : URL_GEMINI_NEW_CHAT
             mainWindow.loadURL(newChatUrl)
           }
         },
         { type: 'separator' },
-        {
-          label: 'Quit',
-          accelerator: 'CommandOrControl+Q',
-          click: () => {
-            isQuitting = true
-            app.quit()
-          }
-        }
+
+        ...(isMac
+          ? [{ role: 'close' }]
+          : [
+              {
+                label: 'Quit',
+                accelerator: 'Ctrl+Q',
+                click: () => {
+                  isQuitting = true
+                  app.quit()
+                }
+              }
+            ])
       ]
     },
+
     {
       label: 'View',
       submenu: [
-        {
-          label: 'Switch Mode (AI Studio / Gemini)',
-          click: switchMode
-        },
+        { label: 'Switch Mode (AI Studio / Gemini)', click: switchMode },
         { type: 'separator' },
         { role: 'reload' },
         { role: 'toggledevtools' },
@@ -229,6 +260,7 @@ function createWindow() {
         }
       ]
     },
+
     {
       label: 'Edit',
       submenu: [
@@ -245,10 +277,7 @@ function createWindow() {
     {
       label: 'Help',
       submenu: [
-        {
-          label: 'Keyboard Shortcuts',
-          click: createShortcutsWindow
-        },
+        { label: 'Keyboard Shortcuts', click: createShortcutsWindow },
         { type: 'separator' },
         {
           label: 'Check for Updates',
@@ -266,10 +295,15 @@ function createWindow() {
             } catch (error) {
               dialog.showErrorBox(
                 'Update Check Failed',
-                error.message ||
-                  'An unknown error occurred while checking for updates.'
+                error.message || 'An unknown error occurred.'
               )
             }
+          }
+        },
+        {
+          label: 'Report Issue',
+          click: async () => {
+            await shell.openExternal(REPO_URL)
           }
         },
         { type: 'separator' },
@@ -282,59 +316,38 @@ function createWindow() {
               defaultId: 1,
               title: 'Reset App Data?',
               message: 'Are you sure you want to reset all app data?',
-              detail:
-                'This will sign you out, clear cache, and reset your settings to default (First Run).',
+              detail: 'This will sign you out and reset settings.',
               cancelId: 0
             })
 
             if (response === 1) {
               await session.defaultSession.clearCache()
               await session.defaultSession.clearStorageData()
-
               try {
-                const firstRunPath = path.join(
-                  app.getPath('userData'),
-                  '.first-run-complete'
+                if (
+                  fs.existsSync(
+                    path.join(app.getPath('userData'), '.first-run-complete')
+                  )
                 )
-                const modeFile = path.join(app.getPath('userData'), '.mode')
-                if (fs.existsSync(firstRunPath)) fs.unlinkSync(firstRunPath)
-                if (fs.existsSync(modeFile)) fs.unlinkSync(modeFile)
-              } catch (e) {
-                console.error(e)
-              }
-
+                  fs.unlinkSync(
+                    path.join(app.getPath('userData'), '.first-run-complete')
+                  )
+                if (fs.existsSync(path.join(app.getPath('userData'), '.mode')))
+                  fs.unlinkSync(path.join(app.getPath('userData'), '.mode'))
+              } catch (e) {}
               app.relaunch()
               app.exit(0)
             }
           }
         },
-        {
-          label: 'Report Issue',
-          click: async () => {
-            await shell.openExternal(REPO_URL)
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'About',
-          click: () => {
-            dialog.showMessageBox(mainWindow, {
-              type: 'info',
-              title: 'About',
-              message: 'Google AI Studio (Unofficial)',
-              detail: `Version: ${app.getVersion()}\n\nMode: ${
-                currentMode === 'aistudio' ? 'AI Studio' : 'Gemini'
-              }\n\nDeveloped by Homielab.\nNot affiliated with Google.`,
-              buttons: ['OK'],
-              icon: path.join(__dirname, 'icon.png')
-            })
-          }
-        }
+
+        ...(isMac
+          ? []
+          : [{ type: 'separator' }, { label: 'About', click: showAbout }])
       ]
     }
   ]
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 
   const filter = { urls: ['*://accounts.google.com/*'] }
   session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -436,7 +449,11 @@ function setupAutoUpdater() {
       })
       .then((result) => {
         if (result.response === 0) {
-          autoUpdater.quitAndInstall()
+          isQuitting = true
+          if (tray) {
+            tray.destroy()
+          }
+          autoUpdater.quitAndInstall(true, true)
         }
       })
   })
@@ -464,9 +481,7 @@ app.on('ready', () => {
     mainWindow.focus()
 
     const newChatUrl =
-      currentMode === 'aistudio'
-        ? 'https://aistudio.google.com/prompts/new_chat'
-        : 'https://gemini.google.com/app'
+      currentMode === 'aistudio' ? URL_AISTUDIO_NEW_CHAT : URL_GEMINI_NEW_CHAT
 
     if (mainWindow.webContents.getURL() !== newChatUrl) {
       mainWindow.loadURL(newChatUrl)
@@ -489,7 +504,6 @@ app.on('ready', () => {
 
   if (!fs.existsSync(flagPath)) {
     try {
-      // 1. Ask the user for their preferred mode
       const choice = dialog.showMessageBoxSync(mainWindow, {
         type: 'question',
         buttons: ['Google AI Studio', 'Google Gemini'],
@@ -500,13 +514,10 @@ app.on('ready', () => {
         icon: path.join(__dirname, 'icon.png')
       })
 
-      // 2. Update mode based on choice (0 = AI Studio, 1 = Gemini)
       currentMode = choice === 1 ? 'gemini' : 'aistudio'
 
-      // 3. Save preference
       fs.writeFileSync(modePath, currentMode)
 
-      // 4. Reload window with the chosen URL
       const targetUrl = currentMode === 'aistudio' ? URL_AISTUDIO : URL_GEMINI
       mainWindow.loadURL(targetUrl)
       mainWindow.setTitle(
@@ -515,10 +526,8 @@ app.on('ready', () => {
           : 'Google Gemini (Unofficial)'
       )
 
-      // 5. Mark first run as complete
       fs.writeFileSync(flagPath, 'true')
 
-      // 6. Show shortcuts guide
       setTimeout(() => {
         createShortcutsWindow()
       }, 1000)
