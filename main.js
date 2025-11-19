@@ -13,8 +13,22 @@ const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const fs = require('fs')
 
-const CHROME_USER_AGENT =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0'
+const getChromeUserAgent = () => {
+  const version = '142.0.0.0'
+
+  if (process.platform === 'darwin') {
+    // macOS
+    return `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version} Safari/537.36`
+  } else if (process.platform === 'win32') {
+    // Windows
+    return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version} Safari/537.36`
+  } else {
+    // Linux
+    return `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version} Safari/537.36`
+  }
+}
+
+const CHROME_USER_AGENT = getChromeUserAgent()
 const REPO_URL = 'https://github.com/homielab/ai-studio-desktop/issues'
 
 let mainWindow
@@ -115,9 +129,11 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true
+      sandbox: false
     }
   })
+
+  mainWindow.dis
 
   const template = [
     {
