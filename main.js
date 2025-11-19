@@ -252,13 +252,24 @@ function createWindow() {
         { type: 'separator' },
         {
           label: 'Check for Updates',
-          click: () => {
-            autoUpdater.checkForUpdatesAndNotify()
-            dialog.showMessageBox(mainWindow, {
-              type: 'info',
-              message: 'Checking for updates...',
-              buttons: ['OK']
-            })
+          click: async () => {
+            try {
+              const result = await autoUpdater.checkForUpdates()
+              if (result && result.updateInfo.version === app.getVersion()) {
+                dialog.showMessageBox(mainWindow, {
+                  type: 'info',
+                  title: 'No Updates',
+                  message: `You are on the latest version (${app.getVersion()}).`,
+                  buttons: ['OK']
+                })
+              }
+            } catch (error) {
+              dialog.showErrorBox(
+                'Update Check Failed',
+                error.message ||
+                  'An unknown error occurred while checking for updates.'
+              )
+            }
           }
         },
         { type: 'separator' },
@@ -410,6 +421,8 @@ function createTray() {
 }
 
 function setupAutoUpdater() {
+  autoUpdater.logger = require('electron-log')
+  autoUpdater.logger.transports.file.level = 'info'
   autoUpdater.checkForUpdatesAndNotify()
 
   autoUpdater.on('update-downloaded', () => {
