@@ -46,14 +46,14 @@ This is a false alarm common with open-source software. Here is how to install i
 
 ## ⌨️ Shortcuts
 
-| Feature                  | macOS             | Windows / Linux    |
-| :----------------------- | :---------------- | :----------------- |
-| **Toggle Window**        | `Cmd + Shift + A` | `Ctrl + Shift + A` |
-| **New Chat**             | `Cmd + Shift + N` | `Ctrl + Shift + N` |
-| **Toggle Always on Top** | `Cmd + T`         | `Ctrl + T`         |
-| **Quit App**             | `Cmd + Q`         | `Ctrl + Q`         |
-| **Zoom In/Out**          | `Cmd + +/-`       | `Ctrl + +/-`       |
-| **Switch Mode**          | Menu -> View      | Menu -> View       |
+| Feature                  | macOS              | Windows / Linux    |
+| :----------------------- | :----------------- | :----------------- |
+| **Toggle Window**        | `Ctrl + Shift + A` | `Ctrl + Shift + A` |
+| **New Chat**             | `Cmd + Shift + N`  | `Ctrl + Shift + N` |
+| **Toggle Always on Top** | `Cmd + T`          | `Ctrl + T`         |
+| **Quit App**             | `Cmd + Q`          | `Ctrl + Q`         |
+| **Zoom In/Out**          | `Cmd + +/-`        | `Ctrl + +/-`       |
+| **Switch Mode**          | Menu -> View       | Menu -> View       |
 
 ## 📦 Build from Source
 

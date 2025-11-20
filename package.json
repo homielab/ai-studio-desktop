@@ -3,7 +3,7 @@
   "productName": "Google AI Studio (Unofficial)",
   "version": "1.4.0",
   "description": "Unofficial desktop client for Google AI Studio",
-  "main": "main.js",
+  "main": "src/main.js",
   "build": {
     "appId": "com.homielab.aistudio",
     "productName": "Google AI Studio (Unofficial)",
