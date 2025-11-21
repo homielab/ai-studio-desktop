@@ -176,7 +176,7 @@ function createMenu({
   ]
 
   if (!isMac) {
-    template[4].submenu.push(
+    template[3].submenu.push(
       { type: 'separator' },
       { label: 'About', click: showAbout }
     )
