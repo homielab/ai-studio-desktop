@@ -12,6 +12,18 @@ This project allows you to access Google's most powerful AI models in a dedicate
 
 **[Download the latest version for Windows, Mac, and Linux here.](https://github.com/homielab/ai-studio-desktop/releases/latest)**
 
+### ⚠️ Note for Windows Users (Microsoft Edge)
+
+If you download the file and Edge deletes it or says "This file is not commonly downloaded":
+
+1. Hover over the file in the downloads list.
+2. Click the **Three Dots (...)** icon or the trash can icon.
+3. Select **Keep**.
+4. In the popup, click **Show more** ⌵.
+5. Click **Keep anyway**.
+
+This warning appears because the app is open-source and not digitally signed with a paid certificate.
+
 ---
 
 ## 🚀 Features
